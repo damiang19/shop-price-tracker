@@ -1,0 +1,26 @@
+services :
+  price-tracker :
+    image: damiang19/price_tracker:s1
+    container_name: price-tracker-ms
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
+  scrapper:
+    image: damiang19/scrapper:s1
+    container_name: scrapper-ms
+    ports:
+      - "8090:8090"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
+networks:
+  shop-price-tracker:
+    driver: "bridge"
