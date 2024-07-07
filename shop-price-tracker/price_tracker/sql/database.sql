@@ -5,9 +5,6 @@ CREATE SEQUENCE IF NOT EXISTS public.shop_id_seq
     MAXVALUE 2147483647
     CACHE 1
 
-ALTER SEQUENCE public.shop_id_seq
-    OWNER TO postgres;
-
 CREATE SEQUENCE IF NOT EXISTS public.tracked_product_archive_id_seq
     INCREMENT 1
     START 1
@@ -15,20 +12,12 @@ CREATE SEQUENCE IF NOT EXISTS public.tracked_product_archive_id_seq
     MAXVALUE 2147483647
     CACHE 1
 
-ALTER SEQUENCE public.tracked_product_archive_id_seq
-    OWNER TO postgres;
-
-
 CREATE SEQUENCE IF NOT EXISTS public.tracked_product_id_seq
     INCREMENT 1
     START 1
     MINVALUE 1
     MAXVALUE 2147483647
     CACHE 1
-    OWNED BY shop.id;
-
-ALTER SEQUENCE public.tracked_product_id_seq
-    OWNER TO postgres;
 
 
 CREATE TABLE IF NOT EXISTS public.shop
@@ -40,12 +29,6 @@ CREATE TABLE IF NOT EXISTS public.shop
     shop_url character varying(100) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT sklep_pkey PRIMARY KEY (id)
 )
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.shop
-    OWNER to postgres;
-
 
 CREATE TABLE IF NOT EXISTS public.tracked_product
 (
@@ -62,12 +45,6 @@ CREATE TABLE IF NOT EXISTS public.tracked_product
         ON DELETE NO ACTION
 )
 
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.tracked_product
-    OWNER to postgres;
-
-
 CREATE TABLE IF NOT EXISTS public.tracked_product_archive
 (
     tracked_product_archive_id bigint NOT NULL DEFAULT nextval('tracked_product_archive_id_seq'::regclass),
@@ -80,8 +57,3 @@ CREATE TABLE IF NOT EXISTS public.tracked_product_archive
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.tracked_product_archive
-    OWNER to postgres;
