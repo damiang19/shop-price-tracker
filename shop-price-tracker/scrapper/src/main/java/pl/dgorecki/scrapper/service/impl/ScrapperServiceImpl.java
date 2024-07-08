@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pl.dgorecki.scrapper.enums.UrlRegexp;
 import pl.dgorecki.scrapper.service.ScrapperService;
+import pl.dgorecki.scrapper.service.ShopService;
+import pl.dgorecki.scrapper.service.UrlValidatorService;
 import pl.dgorecki.scrapper.service.dto.ScrappedProductData;
 import pl.dgorecki.scrapper.service.dto.ShopDTO;
 import pl.dgorecki.scrapper.utils.RegexMatcher;
@@ -21,12 +23,17 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ScrapperServiceImpl implements ScrapperService {
 
+    private final ShopService shopService;
+    private final UrlValidatorService urlValidatorService;
     private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final static Pattern pattern = Pattern.compile(UrlRegexp.PRICE.getValue());
 
 
     @Override
-    public ScrappedProductData scrapActualProductPrice(ShopDTO shopDTO, String url) {
+    public ScrappedProductData scrapActualProductPrice(String url) {
+        String linkToProduct = urlValidatorService.validateUrlFormat(url);
+        ShopDTO shopDTO = shopService.getByUrl(linkToProduct);
         Document document = connectToTrackedProductSite(url);
         return downloadProductInfo(document, shopDTO);
     }
