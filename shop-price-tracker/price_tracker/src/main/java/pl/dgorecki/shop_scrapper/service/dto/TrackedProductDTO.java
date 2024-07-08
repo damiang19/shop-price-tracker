@@ -23,8 +23,6 @@ public class TrackedProductDTO {
 
     private String productName;
 
-    private Long shopId;
-
     private String shopName;
 
     private Instant created;

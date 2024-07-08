@@ -31,9 +31,8 @@ public class TrackedProduct {
     @Column(name = "product_name")
     private String productName;
 
-    @ManyToOne
-    @JoinColumn(name = "shop_id")
-    private Shop shop;
+    @Column(name = "shop_name")
+    private String shopName;
 
     private Instant created;
 

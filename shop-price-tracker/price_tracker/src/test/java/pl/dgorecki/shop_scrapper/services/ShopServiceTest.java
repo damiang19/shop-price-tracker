@@ -8,12 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import pl.dgorecki.shop_scrapper.ShopScrapperApplication;
 import pl.dgorecki.shop_scrapper.controller.payload.ShopData;
-import pl.dgorecki.shop_scrapper.entity.Shop;
-import pl.dgorecki.shop_scrapper.repository.ShopRepository;
-import pl.dgorecki.shop_scrapper.service.dto.ShopDTO;
-import pl.dgorecki.shop_scrapper.service.impl.ShopServiceImpl;
-import pl.dgorecki.shop_scrapper.service.impl.UrlValidatorServiceImpl;
-import pl.dgorecki.shop_scrapper.service.mapper.ShopMapper;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;

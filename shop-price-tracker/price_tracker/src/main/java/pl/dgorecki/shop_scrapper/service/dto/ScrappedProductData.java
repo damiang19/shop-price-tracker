@@ -8,8 +8,9 @@ import java.math.BigDecimal;
 @Setter
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
 public class ScrappedProductData {
     private String productName;
+    private String shopName;
     private BigDecimal price;
+    private String url;
 }

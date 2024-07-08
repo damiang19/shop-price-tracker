@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import pl.dgorecki.shop_scrapper.ShopScrapperApplication;
-import pl.dgorecki.shop_scrapper.service.UrlValidatorService;
 import pl.dgorecki.shop_scrapper.service.errors.InvalidUrlException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
