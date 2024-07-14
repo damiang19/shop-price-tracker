@@ -64,10 +64,9 @@ public class TrackedProductServiceImpl implements TrackedProductService {
                             .collect(Collectors.toList()));
         }
         for (Map.Entry<ShopDTO, List<TrackedProductDTO>> entry : shopToTrackedProducts.entrySet()) {
-            ShopDTO shopDTO = entry.getKey();
             List<TrackedProductDTO> trackedProductsByShop = entry.getValue();
             trackedProductsByShop.forEach(product -> {
-                ScrappedProductData scrappedProductData = scrapperService.scrapActualProductPrice(shopDTO, product.getUrl());
+                ScrappedProductData scrappedProductData = scrapperIntegrationService.scrapProductData(product.getUrl());
                 TrackedProductDTO.updateByActualPrice(product, scrappedProductData);
                 trackedProductRepository.saveAll(trackedProductMapper.toEntity(trackedProductsByShop));
             });

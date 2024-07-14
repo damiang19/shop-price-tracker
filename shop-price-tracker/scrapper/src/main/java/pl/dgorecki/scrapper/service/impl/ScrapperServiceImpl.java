@@ -34,7 +34,7 @@ public class ScrapperServiceImpl implements ScrapperService {
     public ScrappedProductData scrapActualProductPrice(String url) {
         String linkToProduct = urlValidatorService.validateUrlFormat(url);
         ShopDTO shopDTO = shopService.getByUrl(linkToProduct);
-        Document document = connectToTrackedProductSite(url);
+        Document document = connectToTrackedProductSite(linkToProduct);
         return downloadProductInfo(document, shopDTO);
     }
 
