@@ -1,4 +1,4 @@
-package pl.dgorecki.shop_scrapper.service.dto;
+package pl.dgorecki.scrapper.service.dto;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

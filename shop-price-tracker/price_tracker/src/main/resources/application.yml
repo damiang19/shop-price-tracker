@@ -2,4 +2,4 @@ spring:
   profiles:
       active: dev
 server.error.include-message: always
-logging.level.root: INFO
+logging.level.org.hibernate.SQL: DEBUG
