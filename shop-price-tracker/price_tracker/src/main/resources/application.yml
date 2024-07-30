@@ -1,5 +1,9 @@
 spring:
   profiles:
       active: dev
+  application:
+    name: pricetracker
+  config:
+    import: "configserver:http://localhost:8071"
 server.error.include-message: always
 logging.level.org.hibernate.SQL: DEBUG
