@@ -1,6 +1,10 @@
 spring:
   profiles:
     active: dev
+  application:
+    name: scrapper
+  config:
+    import: "configserver:http://localhost:8071"
 server:
   port: 8090
   error:
