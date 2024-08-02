@@ -1,0 +1,57 @@
+services :
+  configserver:
+    image: damiang19/configserver:s6
+    container_name: config-server-ms
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "8071:8071"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
+  price-tracker :
+    image: damiang19/price_tracker:s1
+    container_name: price-tracker-ms
+    depends_on:
+      configserver:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
+      SPRING_APPLICATION_NAME: "pricetracker"
+      SPRING_PROFILES_ACTIVE: "dev"
+  scrapper:
+    image: damiang19/scrapper:s1
+    container_name: scrapper-ms
+    depends_on:
+      configserver:
+        condition: service_healthy
+    ports:
+      - "8090:8090"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
+    environment:
+      SPRING_APPLICATION_NAME: "scrapper"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
+      SPRING_PROFILES_ACTIVE: dev
+networks:
+  shop-price-tracker:
+    driver: "bridge"

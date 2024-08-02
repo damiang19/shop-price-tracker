@@ -1,4 +1,12 @@
 spring:
+  cloud:
+    config:
+      uri: configserver:http://localhost:8071
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        multiplier: 1.1
   profiles:
       active: dev
   application:

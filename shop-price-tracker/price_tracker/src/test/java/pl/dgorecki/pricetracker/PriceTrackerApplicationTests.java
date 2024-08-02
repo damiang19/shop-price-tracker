@@ -8,8 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.io.IOException;
 
 
-@SpringBootTest
-@ActiveProfiles("test")
+@SpringBootTest(classes = PriceTrackerApplication.class)
 class PriceTrackerApplicationTests {
 
 	@Test
