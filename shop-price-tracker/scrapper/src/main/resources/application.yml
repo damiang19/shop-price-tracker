@@ -4,7 +4,7 @@ spring:
   application:
     name: scrapper
   config:
-    import: "configserver:http://localhost:8071"
+    import: "${SPRING_CONFIG_IMPORT}"
 server:
   port: 8090
   error:
