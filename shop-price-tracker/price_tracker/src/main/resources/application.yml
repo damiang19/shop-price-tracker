@@ -1,17 +1,14 @@
 spring:
-  cloud:
-    config:
-      uri: configserver:http://localhost:8071
-      fail-fast: true
-      retry:
-        initial-interval: 1000
-        max-attempts: 6
-        multiplier: 1.1
   profiles:
       active: dev
   application:
     name: pricetracker
   config:
     import: "${SPRING_CONFIG_IMPORT}"
+  jpa:
+    show-sql: true
+  sql:
+    init:
+      mode: always
 server.error.include-message: always
 logging.level.org.hibernate.SQL: DEBUG
