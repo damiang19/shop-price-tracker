@@ -19,7 +19,7 @@ import pl.dgorecki.scrapper.service.mapper.ShopMapper;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-@ActiveProfiles("test")
+
 @SpringBootTest(classes = ScrapperApplication.class)
 public class ShopServiceTest {
     @Mock

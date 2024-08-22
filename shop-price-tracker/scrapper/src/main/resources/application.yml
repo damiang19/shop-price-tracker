@@ -1,8 +1,16 @@
 spring:
   profiles:
     active: dev
+  application:
+    name: scrapper
+  config:
+    import: "${SPRING_CONFIG_IMPORT}"
+  jpa:
+    show-sql: true
+  sql:
+    init:
+      mode: always
 server:
   port: 8090
   error:
     include-message: always
-logging.level.root: INFO
