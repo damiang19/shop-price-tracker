@@ -1,4 +1,48 @@
 services :
+  pricetrackerdb:
+    image: postgres:latest
+    container_name: pricetrackerdb
+    ports:
+     - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - shop-price-tracker
+
+  scrapperdb:
+    image: postgres:latest
+    container_name: scrapperdb
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: scrapper
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - shop-price-tracker
+
   configserver:
     image: damiang19/configserver:s6
     container_name: config-server-ms
@@ -16,10 +60,13 @@ services :
           memory: 1000m
     networks:
       - shop-price-tracker
+
   price-tracker :
-    image: damiang19/price_tracker:s1
+    image: damiang19/price_tracker:s6
     container_name: price-tracker-ms
     depends_on:
+      pricetrackerdb:
+        condition: service_healthy
       configserver:
         condition: service_healthy
     ports:
@@ -34,10 +81,13 @@ services :
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
       SPRING_APPLICATION_NAME: "pricetracker"
       SPRING_PROFILES_ACTIVE: "dev"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://pricetrackerdb:5432/postgres"
   scrapper:
-    image: damiang19/scrapper:s1
+    image: damiang19/scrapper:s6
     container_name: scrapper-ms
     depends_on:
+      scrapperdb:
+        condition: service_healthy
       configserver:
         condition: service_healthy
     ports:
@@ -52,6 +102,7 @@ services :
       SPRING_APPLICATION_NAME: "scrapper"
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
       SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://scrapperdb:5432/scrapper"
 networks:
   shop-price-tracker:
     driver: "bridge"
