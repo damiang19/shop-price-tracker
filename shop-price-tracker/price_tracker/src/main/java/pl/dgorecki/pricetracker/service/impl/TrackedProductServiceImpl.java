@@ -3,9 +3,10 @@ package pl.dgorecki.pricetracker.service.impl;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dgorecki.pricetracker.ScrapperIntegrationService;
+import pl.dgorecki.pricetracker.service.feign.ScrapperIntegrationService;
 import pl.dgorecki.pricetracker.entity.TrackedProduct;
 import pl.dgorecki.pricetracker.repository.TrackedProductRepository;
 import pl.dgorecki.pricetracker.service.*;
@@ -15,10 +16,7 @@ import pl.dgorecki.pricetracker.service.dto.TrackedProductDTO;
 import pl.dgorecki.pricetracker.service.mapper.TrackedProductMapper;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,17 +44,17 @@ public class TrackedProductServiceImpl implements TrackedProductService {
     @Override
     @Transactional
     public TrackedProductDTO addNewProduct(String url) {
-        ScrappedProductData scrappedProductData = scrapperIntegrationService.scrapProductData(url);
-        return save(scrappedProductData);
+        ResponseEntity<ScrappedProductData> scrappedProductData = scrapperIntegrationService.scrapProductData(url);
+        return save(Objects.requireNonNull(scrappedProductData.getBody()));
     }
 
     @Transactional
     @Override
     public void updateProductsByActualPrices(List<TrackedProductDTO> trackedProductDTOList) {
         Set<String> shopNames = trackedProductDTOList.stream().map(TrackedProductDTO::getShopName).collect(Collectors.toSet());
-        List<ShopDTO> shopDTOList = scrapperIntegrationService.getAllShops(shopNames.stream().toList());
+        ResponseEntity<List<ShopDTO>> shopDTOList = scrapperIntegrationService.getShopsByNames(shopNames.stream().toList());
         Map<ShopDTO, List<TrackedProductDTO>> shopToTrackedProducts = new HashMap<>();
-        for (ShopDTO shopDTO : shopDTOList) {
+        for (ShopDTO shopDTO : Objects.requireNonNull(shopDTOList.getBody())) {
             shopToTrackedProducts.put
                     (shopDTO, trackedProductDTOList
                             .stream()
@@ -66,8 +64,8 @@ public class TrackedProductServiceImpl implements TrackedProductService {
         for (Map.Entry<ShopDTO, List<TrackedProductDTO>> entry : shopToTrackedProducts.entrySet()) {
             List<TrackedProductDTO> trackedProductsByShop = entry.getValue();
             trackedProductsByShop.forEach(product -> {
-                ScrappedProductData scrappedProductData = scrapperIntegrationService.scrapProductData(product.getUrl());
-                TrackedProductDTO.updateByActualPrice(product, scrappedProductData);
+                ResponseEntity<ScrappedProductData> scrappedProductData = scrapperIntegrationService.scrapProductData(product.getUrl());
+                TrackedProductDTO.updateByActualPrice(product, Objects.requireNonNull(scrappedProductData.getBody()));
                 trackedProductRepository.saveAll(trackedProductMapper.toEntity(trackedProductsByShop));
             });
         }

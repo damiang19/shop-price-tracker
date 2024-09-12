@@ -11,5 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ScrappedProductData {
     private String productName;
+    private String shopName;
     private BigDecimal price;
+    private String url;
 }

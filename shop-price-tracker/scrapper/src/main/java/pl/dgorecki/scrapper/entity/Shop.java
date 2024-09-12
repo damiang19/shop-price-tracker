@@ -22,7 +22,7 @@ public class Shop {
 
     private String priceHtmlClass;
 
-    private String shopName;
+    private String name;
 
     private String shopUrl;
 

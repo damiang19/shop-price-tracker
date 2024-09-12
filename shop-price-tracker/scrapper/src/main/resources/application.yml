@@ -38,6 +38,6 @@ management:
 
 info:
   application:
-    name: "price-tracker"
+    name: "scrapper"
     description: "Application which store scrapped data"
     version: "0.0.1-ALPHA"

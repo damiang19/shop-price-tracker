@@ -35,7 +35,7 @@ public class ShopControllerIT {
         ShopData payload = new ShopData("name", "price", "morele.net", "morele.net");
         this.webTestClient
                 .post()
-                .uri("/shop")
+                .uri("/shops")
                 .bodyValue(payload)
                 .header(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .exchange()

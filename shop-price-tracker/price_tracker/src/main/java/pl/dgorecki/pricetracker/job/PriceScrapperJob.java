@@ -21,15 +21,15 @@ public class PriceScrapperJob {
     // dodac logowanie debug
     // dodac algorytm do przeszukiwania elementow html w celu wyscrapowania aktualnej ceny (narazie dziala tylko dla morele)
 
-//    @Scheduled(fixedDelay = 3_600_000)
-//    public void scheduleFixedDelayTask() {
-//        log.info("Job started");
-//        Pageable secondPageWithFiveElements = PageRequest.of(0, 100);
-//        TrackedProductCriteria trackedProductCriteria = new TrackedProductCriteria();
-//        trackedProductCriteria.setCreatedLessThan(Instant.now().toString());
-//        List<TrackedProductDTO> trackedProductDTOList = trackedProductQueryService.findByCriteria(trackedProductCriteria, secondPageWithFiveElements);
-//        trackedProductArchiveService.saveAll(trackedProductDTOList);
-//        trackedProductService.updateProductsByActualPrices(trackedProductDTOList);
-//        log.info("Job end");
-//    }
+    @Scheduled(fixedDelay = 3_600_000)
+    public void scheduleFixedDelayTask() {
+        log.info("Job started");
+        Pageable secondPageWithFiveElements = PageRequest.of(0, 100);
+        TrackedProductCriteria trackedProductCriteria = new TrackedProductCriteria();
+        trackedProductCriteria.setCreatedLessThan(Instant.now().toString());
+        List<TrackedProductDTO> trackedProductDTOList = trackedProductQueryService.findByCriteria(trackedProductCriteria, secondPageWithFiveElements);
+        trackedProductArchiveService.saveAll(trackedProductDTOList);
+        trackedProductService.updateProductsByActualPrices(trackedProductDTOList);
+        log.info("Job end");
+    }
 }
