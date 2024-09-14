@@ -11,7 +11,7 @@ import pl.dgorecki.scrapper.enums.UrlRegexp;
 import pl.dgorecki.scrapper.service.ScrapperService;
 import pl.dgorecki.scrapper.service.ShopService;
 import pl.dgorecki.scrapper.service.UrlValidatorService;
-import pl.dgorecki.scrapper.service.dto.ScrappedProductData;
+import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 import pl.dgorecki.scrapper.service.dto.ShopDTO;
 import pl.dgorecki.scrapper.utils.RegexMatcher;
 import org.jsoup.nodes.Attribute;
@@ -31,7 +31,7 @@ public class ScrapperServiceImpl implements ScrapperService {
 
 
     @Override
-    public ScrappedProductData scrapActualProductPrice(String url) {
+    public ScrappedProductDataDTO scrapActualProductPrice(String url) {
         String linkToProduct = urlValidatorService.validateUrlFormat(url);
         ShopDTO shopDTO = shopService.getByUrl(linkToProduct);
         Document document = connectToTrackedProductSite(linkToProduct);
@@ -56,13 +56,13 @@ public class ScrapperServiceImpl implements ScrapperService {
     }
 
     @Override
-    public ScrappedProductData downloadProductInfo(Document loadedPage, ShopDTO shopDTO) {
+    public ScrappedProductDataDTO downloadProductInfo(Document loadedPage, ShopDTO shopDTO) {
         String productName = getProductName(loadedPage, shopDTO);
         String price = getProductPrice(loadedPage, shopDTO);
         price = price.replaceAll(" ", "");
         price = price.replaceAll(",", ".");
         BigDecimal productPrice = new BigDecimal(price);
-        return new ScrappedProductData(productName, productPrice);
+        return new ScrappedProductDataDTO(productName, productPrice);
     }
 
     private String getProductPrice(Document loadedPage, ShopDTO shopDTO) {

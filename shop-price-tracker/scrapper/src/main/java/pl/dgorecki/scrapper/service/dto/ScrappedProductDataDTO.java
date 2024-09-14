@@ -9,9 +9,14 @@ import java.math.BigDecimal;
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
-public class ScrappedProductData {
+public class ScrappedProductDataDTO {
     private String productName;
     private String shopName;
     private BigDecimal price;
     private String url;
+
+    public ScrappedProductDataDTO(String productName, BigDecimal price) {
+        this.productName = productName;
+        this.price = price;
+    }
 }

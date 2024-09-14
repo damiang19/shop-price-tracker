@@ -1,0 +1,8 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled : false
+
+spring.datasource.url: jdbc:tc:postgresql:11.1:///integration-tests-db

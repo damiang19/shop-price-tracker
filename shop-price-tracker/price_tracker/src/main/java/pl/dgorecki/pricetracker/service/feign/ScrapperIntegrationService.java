@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import pl.dgorecki.pricetracker.controller.payload.ShopData;
 import pl.dgorecki.pricetracker.service.dto.ScrappedProductData;
 import pl.dgorecki.pricetracker.service.dto.ShopDTO;
 
