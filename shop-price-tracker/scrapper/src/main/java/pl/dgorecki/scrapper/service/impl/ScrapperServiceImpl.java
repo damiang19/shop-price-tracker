@@ -1,9 +1,6 @@
 package pl.dgorecki.scrapper.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,8 +11,10 @@ import pl.dgorecki.scrapper.service.UrlValidatorService;
 import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 import pl.dgorecki.scrapper.service.dto.ShopDTO;
 import pl.dgorecki.scrapper.utils.RegexMatcher;
-import org.jsoup.nodes.Attribute;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
@@ -34,29 +33,33 @@ public class ScrapperServiceImpl implements ScrapperService {
     public ScrappedProductDataDTO scrapActualProductPrice(String url) {
         String linkToProduct = urlValidatorService.validateUrlFormat(url);
         ShopDTO shopDTO = shopService.getByUrl(linkToProduct);
-        Document document = connectToTrackedProductSite(linkToProduct);
+        String document = fetchWebsiteContent(linkToProduct);
         return downloadProductInfo(document, shopDTO);
     }
 
     @Override
-    public Document connectToTrackedProductSite(String url) {
+    public String fetchWebsiteContent(String url) {
+        StringBuilder output = new StringBuilder();
         try {
-            return Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-                    .referrer("http://www.google.com")
-                    .userAgent("Mozilla/5.0")
-                    .header("Accept-Language", "en-US,en;q=0.5")
-                    .timeout(10 * 1000) // timeout w milisekundach
-                    .followRedirects(true)
-                    .ignoreContentType(true)
-                    .ignoreHttpErrors(true)
-                    .parser(Parser.xmlParser()).get();
-        } catch (IOException connectionException) {
-            throw new RuntimeException("Error - cannot connect with url : " + connectionException);
+            String[] command = {"curl", "-X", "GET", url};
+
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+
+        } catch (IOException e) {
+           throw new RuntimeException("error");
         }
+        return output.toString();
     }
 
     @Override
-    public ScrappedProductDataDTO downloadProductInfo(Document loadedPage, ShopDTO shopDTO) {
+    public ScrappedProductDataDTO downloadProductInfo(String loadedPage, ShopDTO shopDTO) {
         String productName = getProductName(loadedPage, shopDTO);
         String price = getProductPrice(loadedPage, shopDTO);
         price = price.replaceAll(" ", "");
@@ -65,17 +68,19 @@ public class ScrapperServiceImpl implements ScrapperService {
         return new ScrappedProductDataDTO(productName, productPrice);
     }
 
-    private String getProductPrice(Document loadedPage, ShopDTO shopDTO) {
-        return loadedPage
-                .getElementsByClass(shopDTO.getPriceHtmlClass())
-                .get(0).attributes().asList()
-                .stream().map(Attribute::getValue)
-                .filter(s -> s.matches(UrlRegexp.PRICE.getValue())).findFirst()
-                .orElse(RegexMatcher.filter(loadedPage.getElementsByClass(shopDTO.getPriceHtmlClass()).text(), pattern).orElse(""));
+    private String getProductPrice(String loadedPage, ShopDTO shopDTO) {
+        return null;
+//        return loadedPage
+//                .getElementsByClass(shopDTO.getPriceHtmlClass())
+//                .get(0).attributes().asList()
+//                .stream().map(Attribute::getValue)
+//                .filter(s -> s.matches(UrlRegexp.PRICE.getValue())).findFirst()
+//                .orElse(RegexMatcher.filter(loadedPage.getElementsByClass(shopDTO.getPriceHtmlClass()).text(), pattern).orElse(""));
     }
 
-    private String getProductName(Document loadedPage, ShopDTO shopDTO) {
-        String title = loadedPage.getElementsByClass(shopDTO.getProductNameHtmlClass()).text();
-        return title.isEmpty() ? loadedPage.getElementsByClass(shopDTO.getProductNameHtmlClass()).get(0).children().tagName("h2").get(0).text() : title;
+    private String getProductName(String loadedPage, ShopDTO shopDTO) {
+        return null;
+//        String title = loadedPage.getElementsByClass(shopDTO.getProductNameHtmlClass()).text();
+//        return title.isEmpty() ? loadedPage.getElementsByClass(shopDTO.getProductNameHtmlClass()).get(0).children().tagName("h2").get(0).text() : title;
     }
 }

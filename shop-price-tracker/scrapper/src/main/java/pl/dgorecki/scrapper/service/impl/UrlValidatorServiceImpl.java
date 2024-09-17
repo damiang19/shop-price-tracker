@@ -7,6 +7,7 @@ import pl.dgorecki.scrapper.service.errors.InvalidUrlException;
 import pl.dgorecki.scrapper.utils.RegexMatcher;
 
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
@@ -14,6 +15,8 @@ public class UrlValidatorServiceImpl implements UrlValidatorService {
 
     private static final Pattern productUrlRegexp = Pattern.compile(UrlRegexp.URL.getValue());
     private static final Pattern shopUrlRegexp = Pattern.compile(UrlRegexp.SHOP.getValue());
+
+    private static final Pattern websiteJsonRegexp = Pattern.compile(UrlRegexp.JSON.getValue());
 
 
     @Override
@@ -24,5 +27,10 @@ public class UrlValidatorServiceImpl implements UrlValidatorService {
     @Override
     public String getBaseShopUrl(String url) {
         return RegexMatcher.filter(url, shopUrlRegexp).orElseThrow(() -> new InvalidUrlException("URL is not correctly formatted."));
+    }
+
+    @Override
+    public List<String> extractJson(String page) {
+        return RegexMatcher.findAll(page, websiteJsonRegexp);
     }
 }
