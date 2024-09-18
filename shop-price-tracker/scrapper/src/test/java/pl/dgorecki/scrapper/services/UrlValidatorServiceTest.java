@@ -86,8 +86,6 @@ public class UrlValidatorServiceTest {
                     + "\"Price\": \"389.86\""
                     + "}";
            String s = urlValidatorService.extractJson(output.toString()).stream().filter(json -> json.contains("ProductName") && json.contains("Price")).findFirst().orElse("");
-           s = s.replaceAll("\n","");
-           s = s.replaceAll(" ", "");
            s = s.replaceAll(",}", "}");
            JSONObject jsonObject = new JSONObject(s);
 

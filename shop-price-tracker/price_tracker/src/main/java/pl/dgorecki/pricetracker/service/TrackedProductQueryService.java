@@ -32,7 +32,6 @@ public class TrackedProductQueryService {
 
     private Specification<TrackedProduct> createSpecification(TrackedProductCriteria trackedProductCriteria) {
         Specification<TrackedProduct> specification = Specification.where(null);
-
         if (trackedProductCriteria.getProductNameStartsWith() != null) {
             specification = specification.and((root, query, criteriaBuilder) -> {
                 Predicate userName = criteriaBuilder.like(criteriaBuilder.upper(root.get(TrackedProduct_.productName)),
