@@ -19,4 +19,6 @@ public class ScrappedProductDataDTO {
         this.productName = productName;
         this.price = price;
     }
+
+    public ScrappedProductDataDTO(){}
 }
