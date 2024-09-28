@@ -1,9 +1,11 @@
 package pl.dgorecki.scrapper.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ import pl.dgorecki.scrapper.service.ShopService;
 import pl.dgorecki.scrapper.service.UrlValidatorService;
 import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 import pl.dgorecki.scrapper.service.dto.ShopDTO;
+import pl.dgorecki.scrapper.service.errors.PatternNotFoundException;
+import pl.dgorecki.scrapper.utils.RegexMatcher;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +33,7 @@ public class ScrapperServiceImpl implements ScrapperService {
     private final UrlValidatorService urlValidatorService;
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final static Pattern pattern = Pattern.compile(UrlRegexp.PRICE.getValue());
+    private final static Pattern pricePattern = Pattern.compile(UrlRegexp.PRICE.getValue());
 
 
     @Override
@@ -69,17 +73,18 @@ public class ScrapperServiceImpl implements ScrapperService {
 
     private JsonNode convertToJsonNode(String htmlCode, ShopDTO shopDTO) {
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = findProductJson(htmlCode, shopDTO).replaceAll(",}", "}");
+        String jsonString = findProductJson(htmlCode, shopDTO);
+        JSONObject jsonObject = new JSONObject(jsonString.replaceAll("\n", "").replaceAll(" ", "").replaceAll(",}", "}"));
         try {
-            return objectMapper.readTree(jsonString);
+            return objectMapper.readTree(jsonObject.toString());
         } catch (JsonProcessingException jsonMappingException) {
-            throw new RuntimeException("Invalid json format");
+            throw new RuntimeException("Invalid json format"); // TODO : obsluga bledow (exception handler)
         }
     }
 
     private String findProductJson(String htmlCode, ShopDTO shopDTO) {
         return urlValidatorService.extractJson(htmlCode).stream()
-                .filter(json -> json.contains(shopDTO.getPriceHtmlClass()) && json.contains(shopDTO.getProductNameHtmlClass())).findFirst().orElse("");
+                .filter(json -> json.contains(shopDTO.getPriceHtmlClass()) && json.contains(shopDTO.getProductNameHtmlClass())).findFirst().orElse(""); // throw jesli pusty
     }
 
     private ScrappedProductDataDTO assignProductData(JsonNode jsonNode, ShopDTO shopDTO, String linkToProduct) {
@@ -94,13 +99,10 @@ public class ScrapperServiceImpl implements ScrapperService {
 
 
     private BigDecimal convertPriceToBigDecimal(String price) {
-        return null;
-//        return loadedPage
-//                .getElementsByClass(shopDTO.getPriceHtmlClass())
-//                .get(0).attributes().asList()
-//                .stream().map(Attribute::getValue)
-//                .filter(s -> s.matches(UrlRegexp.PRICE.getValue())).findFirst()
-//                .orElse(RegexMatcher.filter(loadedPage.getElementsByClass(shopDTO.getPriceHtmlClass()).text(), pattern).orElse(""));
+        return new BigDecimal(RegexMatcher.filter(price, pricePattern)
+                .orElseThrow(() -> new PatternNotFoundException("Cannot convert price to BigDecimal. Invalid String format.")));
+
+
     }
 
 }

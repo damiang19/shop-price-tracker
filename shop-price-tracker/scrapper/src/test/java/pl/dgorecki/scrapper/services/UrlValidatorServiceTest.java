@@ -1,21 +1,23 @@
 package pl.dgorecki.scrapper.services;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
-import org.bouncycastle.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import pl.dgorecki.scrapper.ScrapperApplication;
 import pl.dgorecki.scrapper.service.UrlValidatorService;
-import pl.dgorecki.scrapper.service.errors.InvalidUrlException;
+import pl.dgorecki.scrapper.service.errors.PatternNotFoundException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -26,7 +28,7 @@ public class UrlValidatorServiceTest {
 
     @Test
     void shouldThrowException() {
-        Exception exception = assertThrows(InvalidUrlException.class, () -> {
+        Exception exception = assertThrows(PatternNotFoundException.class, () -> {
             urlValidatorService.getBaseShopUrl("fdfdfdfdf");
         });
         assertThat(exception.getMessage()).isEqualTo("URL is not correctly formatted.");
@@ -46,16 +48,6 @@ public class UrlValidatorServiceTest {
 
     @Test
     void checkCurl() throws IOException {
-//        byte[] array = new byte[24000];
-//
-//        String command =
-//                "curl https://www.morele.net/karta-graficzna-asus-geforce-gt-730-2gb-gddr5-gt730-4h-sl-2gd5-9387600/ -A Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3";
-//        ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
-//        Process process = processBuilder.start();
-//        InputStream inputStream = process.getInputStream();
-//        inputStream.read(array);
-//        String data = new String(array);
-//        System.out.println(data);
         try {
             // Tworzenie polecenia cURL
             String[] command = {"curl", "-X", "GET", "https://www.morele.net/karta-graficzna-asus-geforce-gt-730-2gb-gddr5-gt730-4h-sl-2gd5-9387600/"};
@@ -76,21 +68,15 @@ public class UrlValidatorServiceTest {
             int exitCode = process.waitFor();
             System.out.println("Exited with code: " + exitCode);
             System.out.println("Response:");
-            String et = "{"
-                    + "\"ProductName\": \"Karta graficzna Asus GeForce GT 730 2GB GDDR5 (GT730-4H-SL-2GD5)\","
-                    + "\"ProductID\": \"9387600\","
-                    + "\"Categories\": [\"Karty graficzne\"],"
-                    + "\"ImageURL\": \"prodImg\","
-                    + "\"URL\": \"https://www.morele.net/karta-graficzna-asus-geforce-gt-730-2gb-gddr5-gt730-4h-sl-2gd5-9387600/\","
-                    + "\"Brand\": \"Asus\","
-                    + "\"Price\": \"389.86\""
-                    + "}";
            String s = urlValidatorService.extractJson(output.toString()).stream().filter(json -> json.contains("ProductName") && json.contains("Price")).findFirst().orElse("");
-           s = s.replaceAll(",}", "}");
+           s = s.replaceAll("\n", "").replaceAll(" ", "").replaceAll(",}", "}");
            JSONObject jsonObject = new JSONObject(s);
+            ObjectMapper objectMapper = new ObjectMapper();
 
 
-            System.out.println(jsonObject);
+            JsonNode jsonNode = objectMapper.readTree(jsonObject.toString());
+            System.out.println(jsonNode.get("ProductName").asText());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
