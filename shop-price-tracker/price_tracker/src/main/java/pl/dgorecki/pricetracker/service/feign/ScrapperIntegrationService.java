@@ -12,11 +12,11 @@ import pl.dgorecki.pricetracker.service.dto.ShopDTO;
 
 import java.util.List;
 
-@FeignClient
+@FeignClient("scrapper")
 public interface ScrapperIntegrationService {
 
 
-    @GetMapping("/scrap-product-price")
+    @GetMapping(value = "/scrap-product-price", consumes = "application/json")
     ResponseEntity<ScrappedProductData> scrapProductData(@RequestParam String url);
 
     @GetMapping(value = "/shops", consumes = "application/json")
