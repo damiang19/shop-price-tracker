@@ -1,9 +1,11 @@
 package pl.dgorecki.scrapper.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,13 +13,17 @@ import pl.dgorecki.scrapper.enums.UrlRegexp;
 import pl.dgorecki.scrapper.service.ScrapperService;
 import pl.dgorecki.scrapper.service.ShopService;
 import pl.dgorecki.scrapper.service.UrlValidatorService;
-import pl.dgorecki.scrapper.service.dto.ScrappedProductData;
+import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 import pl.dgorecki.scrapper.service.dto.ShopDTO;
+import pl.dgorecki.scrapper.service.errors.PatternNotFoundException;
 import pl.dgorecki.scrapper.utils.RegexMatcher;
-import org.jsoup.nodes.Attribute;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,55 +33,76 @@ public class ScrapperServiceImpl implements ScrapperService {
     private final UrlValidatorService urlValidatorService;
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final static Pattern pattern = Pattern.compile(UrlRegexp.PRICE.getValue());
+    private final static Pattern pricePattern = Pattern.compile(UrlRegexp.PRICE.getValue());
 
 
     @Override
-    public ScrappedProductData scrapActualProductPrice(String url) {
+    public ScrappedProductDataDTO scrapActualProductPrice(String url) {
         String linkToProduct = urlValidatorService.validateUrlFormat(url);
         ShopDTO shopDTO = shopService.getByUrl(linkToProduct);
-        Document document = connectToTrackedProductSite(linkToProduct);
-        return downloadProductInfo(document, shopDTO);
+        return downloadInformationAboutProduct(linkToProduct, shopDTO);
+    }
+
+    private ScrappedProductDataDTO downloadInformationAboutProduct(String linkToProduct, ShopDTO shopDTO) {
+        String websiteContent = fetchWebsiteContent(linkToProduct);
+        JsonNode jsonNode = convertToJsonNode(websiteContent, shopDTO);
+        return assignProductData(jsonNode, shopDTO, linkToProduct);
     }
 
     @Override
-    public Document connectToTrackedProductSite(String url) {
+    public String fetchWebsiteContent(String url) {
+        Process process;
         try {
-            return Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-                    .referrer("http://www.google.com")
-                    .userAgent("Mozilla/5.0")
-                    .header("Accept-Language", "en-US,en;q=0.5")
-                    .timeout(10 * 1000) // timeout w milisekundach
-                    .followRedirects(true)
-                    .ignoreContentType(true)
-                    .ignoreHttpErrors(true)
-                    .parser(Parser.xmlParser()).get();
-        } catch (IOException connectionException) {
-            throw new RuntimeException("Error - cannot connect with url : " + connectionException);
+            process = prepareProcess(url);
+        } catch (IOException e) {
+            throw new RuntimeException("error");
+        }
+        return readAllLinesWithStream(new BufferedReader(new InputStreamReader(process.getInputStream())));
+    }
+
+    private Process prepareProcess(String url) throws IOException {
+        String[] command = {"curl", "-X", "GET", url};
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        return processBuilder.start();
+    }
+
+    private String readAllLinesWithStream(BufferedReader reader) {
+        return reader.lines()
+                .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    private JsonNode convertToJsonNode(String htmlCode, ShopDTO shopDTO) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = findProductJson(htmlCode, shopDTO);
+        JSONObject jsonObject = new JSONObject(jsonString.replaceAll("\n", "").replaceAll(" ", "").replaceAll(",}", "}"));
+        try {
+            return objectMapper.readTree(jsonObject.toString());
+        } catch (JsonProcessingException jsonMappingException) {
+            throw new RuntimeException("Invalid json format"); // TODO : obsluga bledow (exception handler)
         }
     }
 
-    @Override
-    public ScrappedProductData downloadProductInfo(Document loadedPage, ShopDTO shopDTO) {
-        String productName = getProductName(loadedPage, shopDTO);
-        String price = getProductPrice(loadedPage, shopDTO);
-        price = price.replaceAll(" ", "");
-        price = price.replaceAll(",", ".");
-        BigDecimal productPrice = new BigDecimal(price);
-        return new ScrappedProductData(productName, productPrice);
+    private String findProductJson(String htmlCode, ShopDTO shopDTO) {
+        return urlValidatorService.extractJson(htmlCode).stream()
+                .filter(json -> json.contains(shopDTO.getPriceHtmlClass()) && json.contains(shopDTO.getProductNameHtmlClass())).findFirst().orElse(""); // throw jesli pusty
     }
 
-    private String getProductPrice(Document loadedPage, ShopDTO shopDTO) {
-        return loadedPage
-                .getElementsByClass(shopDTO.getPriceHtmlClass())
-                .get(0).attributes().asList()
-                .stream().map(Attribute::getValue)
-                .filter(s -> s.matches(UrlRegexp.PRICE.getValue())).findFirst()
-                .orElse(RegexMatcher.filter(loadedPage.getElementsByClass(shopDTO.getPriceHtmlClass()).text(), pattern).orElse(""));
+    private ScrappedProductDataDTO assignProductData(JsonNode jsonNode, ShopDTO shopDTO, String linkToProduct) {
+        ScrappedProductDataDTO scrappedProductDataDTO = new ScrappedProductDataDTO();
+        scrappedProductDataDTO.setProductName(jsonNode.get(shopDTO.getProductNameHtmlClass()).asText());
+        BigDecimal price = convertPriceToBigDecimal(jsonNode.get(shopDTO.getProductNameHtmlClass()).asText());
+        scrappedProductDataDTO.setShopName(shopDTO.getName());
+        scrappedProductDataDTO.setPrice(price);
+        scrappedProductDataDTO.setUrl(linkToProduct);
+        return scrappedProductDataDTO;
     }
 
-    private String getProductName(Document loadedPage, ShopDTO shopDTO) {
-        String title = loadedPage.getElementsByClass(shopDTO.getProductNameHtmlClass()).text();
-        return title.isEmpty() ? loadedPage.getElementsByClass(shopDTO.getProductNameHtmlClass()).get(0).children().tagName("h2").get(0).text() : title;
+
+    private BigDecimal convertPriceToBigDecimal(String price) {
+        return new BigDecimal(RegexMatcher.filter(price, pricePattern)
+                .orElseThrow(() -> new PatternNotFoundException("Cannot convert price to BigDecimal. Invalid String format.")));
+
+
     }
+
 }

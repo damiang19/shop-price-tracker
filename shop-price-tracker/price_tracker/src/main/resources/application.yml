@@ -10,5 +10,32 @@ spring:
   sql:
     init:
       mode: always
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: "${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+info:
+  application:
+    name: "price-tracker"
+    description: "Application which store scrapped data"
+    version: "0.0.1-ALPHA"
+
 server.error.include-message: always
 logging.level.org.hibernate.SQL: DEBUG

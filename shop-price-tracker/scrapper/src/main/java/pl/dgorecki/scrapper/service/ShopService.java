@@ -11,6 +11,6 @@ public interface ShopService {
 
     ShopDTO getByUrl(String url);
 
-    List<ShopDTO> getAllByIds(List<Long> shopIds);
+    List<ShopDTO> getAllByNames(List<String> shopIds);
 
 }

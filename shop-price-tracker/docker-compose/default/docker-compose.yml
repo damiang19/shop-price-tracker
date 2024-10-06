@@ -42,9 +42,8 @@ services :
           memory: 700m
     networks:
       - shop-price-tracker
-
   configserver:
-    image: damiang19/configserver:s6
+    image: damiang19/configserver:s1
     container_name: config-server-ms
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
@@ -60,14 +59,40 @@ services :
           memory: 1000m
     networks:
       - shop-price-tracker
+  eurekaserver:
+    image: damiang19/eurekaserver:s1
+    container_name: eurekaserver-ms
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      configserver:
+        condition: service_healthy
+    ports:
+      - "8070:8070"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_APPLICATION_NAME: "eurekaserver"
 
   price-tracker :
-    image: damiang19/price_tracker:s6
+    image: damiang19/price_tracker:s1
     container_name: price-tracker-ms
     depends_on:
       pricetrackerdb:
         condition: service_healthy
       configserver:
+        condition: service_healthy
+      eurekaserver:
         condition: service_healthy
     ports:
       - "8080:8080"
@@ -80,15 +105,18 @@ services :
     environment:
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
       SPRING_APPLICATION_NAME: "pricetracker"
-      SPRING_PROFILES_ACTIVE: "dev"
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: "jdbc:postgresql://pricetrackerdb:5432/postgres"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
   scrapper:
-    image: damiang19/scrapper:s6
+    image: damiang19/scrapper:s1
     container_name: scrapper-ms
     depends_on:
       scrapperdb:
         condition: service_healthy
       configserver:
+        condition: service_healthy
+      eurekaserver:
         condition: service_healthy
     ports:
       - "8090:8090"
@@ -103,6 +131,7 @@ services :
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: "jdbc:postgresql://scrapperdb:5432/scrapper"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
 networks:
   shop-price-tracker:
     driver: "bridge"

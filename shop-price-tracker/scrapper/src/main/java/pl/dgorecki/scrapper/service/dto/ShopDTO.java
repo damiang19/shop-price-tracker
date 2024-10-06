@@ -12,7 +12,7 @@ import lombok.ToString;
 public class ShopDTO {
     private Long id;
 
-    private String shopName;
+    private String name;
 
     private String productNameHtmlClass;
 

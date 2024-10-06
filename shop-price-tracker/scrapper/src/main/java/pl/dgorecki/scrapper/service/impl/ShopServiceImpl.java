@@ -29,7 +29,7 @@ public class ShopServiceImpl implements ShopService {
     @Transactional
     public ShopDTO save(ShopData shopData) {
         Shop shop = new Shop();
-        shop.setShopName(shopData.shopName());
+        shop.setName(shopData.name());
         shop.setShopUrl(urlValidatorService.getBaseShopUrl(shopData.shopUrl()));
         shop.setPriceHtmlClass(shopData.priceHtmlClass());
         shop.setProductNameHtmlClass(shopData.productNameHtmlClass());
@@ -45,7 +45,7 @@ public class ShopServiceImpl implements ShopService {
     }
     @Override
     @Transactional
-    public List<ShopDTO> getAllByIds(List<Long> shopIds) {
-        return shopMapper.toDto(shopRepository.findAllById(shopIds));
+    public List<ShopDTO> getAllByNames(List<String> names) {
+        return shopMapper.toDto(shopRepository.findAllByNameIn(names));
     }
 }

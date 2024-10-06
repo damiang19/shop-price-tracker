@@ -1,16 +1,12 @@
 package pl.dgorecki.scrapper.service;
 
 
-import org.jsoup.nodes.Document;
-import pl.dgorecki.scrapper.service.dto.ScrappedProductData;
-import pl.dgorecki.scrapper.service.dto.ShopDTO;
+import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 
 public interface ScrapperService {
 
-    Document connectToTrackedProductSite(String url);
+    String fetchWebsiteContent(String url);
 
-    ScrappedProductData scrapActualProductPrice(String url);
-
-    ScrappedProductData downloadProductInfo(Document loadedPage, ShopDTO shopDTO);
+    ScrappedProductDataDTO scrapActualProductPrice(String url);
 
 }

@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotBlank;
 
 public record ShopData(@NotBlank String productNameHtmlClass,
                        @NotBlank String priceHtmlClass,
-                       @NotBlank String shopName,
+                       @NotBlank String name,
                        @NotBlank String shopUrl) {}

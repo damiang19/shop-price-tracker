@@ -14,3 +14,30 @@ server:
   port: 8090
   error:
     include-message: always
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: "${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+info:
+  application:
+    name: "scrapper"
+    description: "Application which store scrapped data"
+    version: "0.0.1-ALPHA"
