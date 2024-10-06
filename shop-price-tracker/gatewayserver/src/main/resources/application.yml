@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: gatewayserver
+  config:
+    import: "${SPRING_CONFIG_IMPORT}"
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: "${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}"
+
+management:
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+server:
+  port: 8072
+info:
+  application:
+    name: "gateway-server"
+    description: "Gateway server - edge server"
+    version: "0.0.1-ALPHA"
+
