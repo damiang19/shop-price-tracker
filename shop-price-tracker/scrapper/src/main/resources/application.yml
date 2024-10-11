@@ -41,3 +41,6 @@ info:
     name: "scrapper"
     description: "Application which store scrapped data"
     version: "0.0.1-ALPHA"
+logging:
+  level:
+    pl.dgorecki.scrapper: DEBUG

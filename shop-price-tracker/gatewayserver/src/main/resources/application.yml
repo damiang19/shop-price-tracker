@@ -36,4 +36,6 @@ info:
     name: "gateway-server"
     description: "Gateway server - edge server"
     version: "0.0.1-ALPHA"
-
+logging:
+  level:
+    pl.dgorecki.gatewayserver: DEBUG
