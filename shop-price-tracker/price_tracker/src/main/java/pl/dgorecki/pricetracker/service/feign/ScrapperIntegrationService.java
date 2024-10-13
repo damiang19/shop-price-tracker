@@ -17,8 +17,8 @@ public interface ScrapperIntegrationService {
 
 
     @GetMapping(value = "/scrap-product-price", consumes = "application/json")
-    ResponseEntity<ScrappedProductData> scrapProductData(@RequestParam String url);
+    ResponseEntity<ScrappedProductData> scrapProductData(@RequestParam("url") String url);
 
     @GetMapping(value = "/shops", consumes = "application/json")
-    ResponseEntity<List<ShopDTO>> getShopsByNames(@RequestParam List<String> names);
+    ResponseEntity<List<ShopDTO>> getShopsByNames(@RequestParam("names") List<String> names);
 }

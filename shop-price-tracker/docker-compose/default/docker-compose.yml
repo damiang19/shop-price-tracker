@@ -87,6 +87,12 @@ services :
   price-tracker :
     image: damiang19/price_tracker:s1
     container_name: price-tracker-ms
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       pricetrackerdb:
         condition: service_healthy
@@ -108,9 +114,16 @@ services :
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: "jdbc:postgresql://pricetrackerdb:5432/postgres"
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
+
   scrapper:
     image: damiang19/scrapper:s1
     container_name: scrapper-ms
+    healthcheck:
+      test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       scrapperdb:
         condition: service_healthy
@@ -131,6 +144,26 @@ services :
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: "jdbc:postgresql://scrapperdb:5432/scrapper"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
+  gatewayserver:
+    image: damiang19/gatewayserver:s1
+    container_name: gateway-server-ms
+    depends_on:
+      scrapper:
+        condition: service_healthy
+      price-tracker:
+        condition: service_healthy
+    ports:
+      - "8072:8072"
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071"
+      SPRING_APPLICATION_NAME: "gatewayserver"
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
 networks:
   shop-price-tracker:
