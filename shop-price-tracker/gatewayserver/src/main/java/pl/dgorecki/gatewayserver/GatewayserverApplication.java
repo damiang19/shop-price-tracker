@@ -23,12 +23,16 @@ public class GatewayserverApplication {
                 .route(p -> p
 						.path("/dgorecki/scrapper/**")
                         .filters(filter -> filter.rewritePath("/dgorecki/scrapper/(?<segment>.*)", "/${segment}")
-								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+								.circuitBreaker(config -> config.setName("scrapperCircuitBreaker")
+										.setFallbackUri("forward:/microservice-error")))
 						.uri("lb://SCRAPPER"))
 				.route(p -> p
 						.path("/dgorecki/price-tracker/**")
 						.filters(filter -> filter.rewritePath("/dgorecki/price-tracker/(?<segment>.*)", "/${segment}")
-								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+								.circuitBreaker(config -> config.setName("priceTrackerCircuitBreaker")
+										.setFallbackUri("forward:/microservice-error")))
 						.uri("lb://PRICETRACKER")).build();
     }
 

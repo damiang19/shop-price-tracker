@@ -39,3 +39,8 @@ info:
 logging:
   level:
     pl.dgorecki.gatewayserver: DEBUG
+resilience4j.circuitbreaker:
+  slidingWindowSize: 10  # sprawdz 10 requestow. Na podstawie powodzenia ustaw odpowiedni stan
+  permittedNumberOfCallsInHalfOpenState: 2 # ilosc requestow wykonanych w stanie half_open
+  failureRateThreshold: 50 # ile procent requestow musi zakonczyc sie niepowodzeniem aby stan zostal ustawiony na otwarty
+  waitDurationInOpenState: 10000 # jak dlugo ma pozostac w open state

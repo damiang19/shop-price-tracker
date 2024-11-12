@@ -12,7 +12,7 @@ import pl.dgorecki.pricetracker.service.dto.ShopDTO;
 
 import java.util.List;
 
-@FeignClient("scrapper")
+@FeignClient(name = "scrapper", fallback = ScrapperFallback.class)
 public interface ScrapperIntegrationService {
 
 
