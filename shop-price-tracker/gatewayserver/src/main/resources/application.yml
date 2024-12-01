@@ -3,12 +3,21 @@ spring:
     name: gatewayserver
   config:
     import: "${SPRING_CONFIG_IMPORT}"
+  data:
+    redis:
+      connect-timeout: 2s
+      host: "${SPRING_DATA_REDIS_HOST}"
+      port: 6379
+      timeout: 1s
   cloud:
     gateway:
       discovery:
         locator:
           enabled: false
           lowerCaseServiceId: true
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
 eureka:
   instance:
     preferIpAddress: true
@@ -17,7 +26,6 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: "${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}"
-
 management:
   endpoint:
     gateway:
