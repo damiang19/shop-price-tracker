@@ -3,12 +3,21 @@ spring:
     name: gatewayserver
   config:
     import: "${SPRING_CONFIG_IMPORT}"
+  data:
+    redis:
+      connect-timeout: 2s
+      host: "${SPRING_DATA_REDIS_HOST}"
+      port: 6379
+      timeout: 1s
   cloud:
     gateway:
       discovery:
         locator:
           enabled: false
           lowerCaseServiceId: true
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
 eureka:
   instance:
     preferIpAddress: true
@@ -17,7 +26,6 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: "${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}"
-
 management:
   endpoint:
     gateway:
@@ -39,3 +47,8 @@ info:
 logging:
   level:
     pl.dgorecki.gatewayserver: DEBUG
+resilience4j.circuitbreaker:
+  slidingWindowSize: 10  # sprawdz 10 requestow. Na podstawie powodzenia ustaw odpowiedni stan
+  permittedNumberOfCallsInHalfOpenState: 2 # ilosc requestow wykonanych w stanie half_open
+  failureRateThreshold: 50 # ile procent requestow musi zakonczyc sie niepowodzeniem aby stan zostal ustawiony na otwarty
+  waitDurationInOpenState: 10000 # jak dlugo ma pozostac w open state
