@@ -43,7 +43,9 @@ management:
   info:
     env:
       enabled: true
-
+  metrics:
+    tags:
+      application: ${spring.application.name}
 info:
   application:
     name: "scrapper"
