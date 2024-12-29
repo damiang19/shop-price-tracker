@@ -15,7 +15,6 @@ public class UrlValidatorServiceImpl implements UrlValidatorService {
 
     private static final Pattern productUrlRegexp = Pattern.compile(UrlRegexp.URL.getValue());
     private static final Pattern shopUrlRegexp = Pattern.compile(UrlRegexp.SHOP.getValue());
-
     private static final Pattern websiteJsonRegexp = Pattern.compile(UrlRegexp.JSON.getValue());
 
 
@@ -26,7 +25,7 @@ public class UrlValidatorServiceImpl implements UrlValidatorService {
 
     @Override
     public String getBaseShopUrl(String url) {
-        return RegexMatcher.filter(url, shopUrlRegexp).orElseThrow(() -> new PatternNotFoundException("URL is not correctly formatted."));
+        return RegexMatcher.filter(url, shopUrlRegexp).orElseThrow(() -> new PatternNotFoundException("URL is not correctly formatted"));
     }
 
     @Override
