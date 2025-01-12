@@ -81,9 +81,12 @@ services :
       - "9090:9090"
     volumes:
       - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    extends:
-      file: 
-      service:
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    networks:
+      - shop-price-tracker
   grafana:
     image: grafana/grafana:latest
     environment:
@@ -92,23 +95,12 @@ services :
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     depends_on:
       - gateway
+    volumes:
+      - ../observability/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
     entrypoint:
       - sh
       - -euc
       - |
-        mkdir -p /etc/grafana/provisioning/datasources
-        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
-        apiVersion: 1
-        datasources:
-          - name: Loki
-            type: loki
-            access: proxy
-            url: http://gateway:3100
-            jsonData:
-              httpHeaderName1: "X-Scope-OrgID"
-            secureJsonData:
-              httpHeaderValue1: "tenant1"
-        EOF
         /run.sh
     ports:
       - "3000:3000"
@@ -299,7 +291,7 @@ services :
       SPRING_PROFILES_ACTIVE: default
       SPRING_APPLICATION_NAME: "eurekaserver"
 
-  price-tracker :
+  price-tracker:
     image: damiang19/price_tracker:s1
     container_name: price-tracker-ms
     healthcheck:
