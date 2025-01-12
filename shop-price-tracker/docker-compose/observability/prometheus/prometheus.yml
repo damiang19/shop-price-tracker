@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'scrapper'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [scrapper:8090]
+  - job_name: 'price-tracker:'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [price-tracker:8080]
+  - job_name: 'eurekaserver'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [ eurekaserver:8070 ]
+  - job_name: 'gatewayserver'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [ gatewayserver:8072 ]

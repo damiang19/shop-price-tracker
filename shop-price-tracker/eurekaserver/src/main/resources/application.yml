@@ -1,6 +1,6 @@
 spring:
   application:
-    name: "eurekaserver"
+    name: eurekaserver
   config:
     import: "${SPRING_CONFIG_IMPORT}"
 management:
@@ -17,5 +17,10 @@ management:
     health:
       probes:
         enabled: true
+  metrics:
+    enable:
+      all: true
+    tags:
+      application: ${spring.application.name}
 server:
   port: 8070
