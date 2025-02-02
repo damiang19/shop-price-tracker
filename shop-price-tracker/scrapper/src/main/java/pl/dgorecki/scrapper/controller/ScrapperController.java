@@ -17,7 +17,10 @@ public class ScrapperController {
 
     @GetMapping("/scrap-product-price")
     public ResponseEntity<ScrappedProductDataDTO> scrapProductData(@RequestParam String url) {
+        // TODO : zweryfikuj czy dany produkt nie jest juz  dodany do bazy danych
         ScrappedProductDataDTO scrappedProductDataDTO = scrapperService.scrapActualProductPrice(url);
         return ResponseEntity.status(HttpStatus.OK).body(scrappedProductDataDTO);
     }
+
+    //TODO: dodanie kontrolera ktory przyjmuje liste danych do zescrapowania
 }

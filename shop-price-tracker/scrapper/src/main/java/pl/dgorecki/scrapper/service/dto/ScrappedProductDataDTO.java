@@ -22,6 +22,9 @@ public class ScrappedProductDataDTO {
     public static ScrappedProductDataDTO create(JsonNode jsonNode, ShopDTO shopDTO, String linkToProduct) {
         ScrappedProductDataDTO scrappedProductDataDTO = new ScrappedProductDataDTO();
         scrappedProductDataDTO.setProductName(jsonNode.get(shopDTO.getProductNameHtmlClass()).asText());
+        /* TODO : znajduje wartosci nawet zagniezdzone, ale wybiera pierwszy napotkany string
+         * TODO: trzeba uwzglednic na jakim poziomie zagniezdzenia jsona znajduje sie szukana przez nas zmienna
+         */
         BigDecimal price = BigDecimalConverter.fromString(jsonNode.findValue(shopDTO.getPriceHtmlClass()).asText());
         scrappedProductDataDTO.setShopName(shopDTO.getName());
         scrappedProductDataDTO.setPrice(price);
