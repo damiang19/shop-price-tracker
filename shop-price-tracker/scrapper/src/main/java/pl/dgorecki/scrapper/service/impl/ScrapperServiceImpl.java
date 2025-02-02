@@ -62,7 +62,7 @@ public class ScrapperServiceImpl implements ScrapperService {
                 .stream()
                 .filter(json -> json.contains(shopDTO.getPriceHtmlClass()) && json.contains(shopDTO.getProductNameHtmlClass()))
                 .findFirst()
-                .orElseThrow(() -> new ProductJsonNotFoundException("JSON with the given name and price was not found"));
+                .orElseThrow(() -> new ProductJsonNotFoundException("JSON with the given product name and price was not found"));
     }
 
 }
