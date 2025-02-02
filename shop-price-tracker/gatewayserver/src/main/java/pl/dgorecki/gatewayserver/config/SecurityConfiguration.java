@@ -17,7 +17,8 @@ public class SecurityConfiguration {
         security
                 .authorizeExchange(authorize -> authorize
                         .pathMatchers(HttpMethod.GET).permitAll()
-                        .pathMatchers("dgorecki/scrapper/shops").authenticated())
+                        .pathMatchers("dgorecki/scrapper/shops").authenticated()
+                        .pathMatchers("dgorecki/price-tracker/**").authenticated())
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec.jwt(Customizer.withDefaults()));
         security.csrf(ServerHttpSecurity.CsrfSpec::disable);
         return security.build();

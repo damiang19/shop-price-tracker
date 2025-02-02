@@ -17,6 +17,7 @@ import pl.dgorecki.scrapper.service.dto.ShopDTO;
 import pl.dgorecki.scrapper.service.errors.JsonParsingException;
 import pl.dgorecki.scrapper.service.errors.ProductJsonNotFoundException;
 
+import java.util.List;
 
 
 @Service
@@ -35,6 +36,11 @@ public class ScrapperServiceImpl implements ScrapperService {
         String linkToProduct = urlValidatorService.validateUrlFormat(url);
         ShopDTO shopDTO = shopService.getByUrl(linkToProduct);
         return downloadInformationAboutProduct(linkToProduct, shopDTO);
+    }
+
+    @Override
+    public List<ScrappedProductDataDTO> scrapListOfProducts(List<String> urls) {
+        return null;
     }
 
     private ScrappedProductDataDTO downloadInformationAboutProduct(String linkToProduct, ShopDTO shopDTO) {

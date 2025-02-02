@@ -14,6 +14,6 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PatternNotFoundException.class)
     protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
         request.getContextPath();
-        return new ResponseEntity<>( new Exception(ex.getMessage(), 500, "PATTERN_PARSE_ERROR"), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>( new ErrorResponse(ex.getMessage(), 500, "PATTERN_PARSE_ERROR"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

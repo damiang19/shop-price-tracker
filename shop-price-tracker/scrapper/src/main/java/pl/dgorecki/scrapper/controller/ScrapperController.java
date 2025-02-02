@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.dgorecki.scrapper.service.ScrapperService;
 import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class ScrapperController {
@@ -22,5 +24,8 @@ public class ScrapperController {
         return ResponseEntity.status(HttpStatus.OK).body(scrappedProductDataDTO);
     }
 
-    //TODO: dodanie kontrolera ktory przyjmuje liste danych do zescrapowania
+    @GetMapping("/scrap-product-prices")
+    public ResponseEntity<List<ScrappedProductDataDTO>> scrapListOfProducts(@RequestParam List<String> urls) {
+        return null;
+    }
 }
