@@ -27,7 +27,6 @@ public class ScrapperServiceImpl implements ScrapperService {
     private final ShopService shopService;
     private final CurlService curlService;
     private final UrlValidatorService urlValidatorService;
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
 
@@ -59,6 +58,7 @@ public class ScrapperServiceImpl implements ScrapperService {
         try {
             return objectMapper.readTree(jsonObject.toString());
         } catch (JsonProcessingException jsonMappingException) {
+            log.error("Error during converting jsonString : {}", jsonString);
             throw new JsonParsingException("Invalid JSON format");
         }
     }
