@@ -17,7 +17,10 @@ import pl.dgorecki.scrapper.service.dto.ShopDTO;
 import pl.dgorecki.scrapper.service.errors.JsonParsingException;
 import pl.dgorecki.scrapper.service.errors.ProductJsonNotFoundException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 
 @Service
@@ -64,9 +67,16 @@ public class ScrapperServiceImpl implements ScrapperService {
     }
 
     private String findProductJson(String htmlCode, ShopDTO shopDTO) {
+        List<String> jsonValuePath = Arrays.stream(shopDTO.getProductNameHtmlClass().split("\\.")).toList();
+        List<Predicate<String>> allPredicates = new ArrayList<>();
+        for (String s : jsonValuePath) {
+            allPredicates.add(pr -> pr.contains(s));
+        }
+
+
         return urlValidatorService.extractJson(htmlCode)
                 .stream()
-                .filter(json -> json.contains(shopDTO.getPriceHtmlClass()) && json.contains(shopDTO.getProductNameHtmlClass()))
+                .filter(allPredicates.stream().reduce(x->true, Predicate::and))
                 .findFirst()
                 .orElseThrow(() -> new ProductJsonNotFoundException("JSON with the given product name and price was not found"));
     }

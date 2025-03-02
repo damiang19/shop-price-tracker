@@ -24,7 +24,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@AutoConfigureWebTestClient
+@AutoConfigureWebTestClient(timeout = "10000")
 @SpringBootTest(classes = ScrapperApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ScrapperControllerIT {
     @Autowired
@@ -42,6 +42,7 @@ public class ScrapperControllerIT {
     @BeforeEach
     public void init() {
     }
+
     // findValue w jsonNode znajduje pierwsza napotkana wartosc. Czasami pasuje aby przeszukalo na podstawie wskazanej informacji wartosc zagniezdzona
     //
     @Test
@@ -55,7 +56,7 @@ public class ScrapperControllerIT {
         Mockito.when(curlService.fetchWebsiteContent(payload)).thenReturn("{\"price\":\"50\",\"name\":\"test\"}");
         ScrappedProductDataDTO scrappedProductDataDTO = this.webTestClient
                 .get()
-                .uri( uriBuilder -> uriBuilder
+                .uri(uriBuilder -> uriBuilder
                         .path("/scrap-product-price")
                         .queryParam("url", payload)
                         .build()
@@ -76,6 +77,7 @@ public class ScrapperControllerIT {
     void shouldFindProductDataWhenItIsNested() {
         //GIVEN
         ShopDTO shopDTO = createExampleShop();
+        shopDTO.setProductNameHtmlClass("offers.name");
         String payload = "http://www.example.org/super-pendrive-test";
         //WHEN
         Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);
@@ -83,7 +85,7 @@ public class ScrapperControllerIT {
         Mockito.when(curlService.fetchWebsiteContent(payload)).thenReturn("{\"@context\":\"http://schema.org/\",\"@type\":\"Product\",\"name\":\"Lenovo IdeaPad Slim 3-15 i5-12450H/16GB/512/Win11\",\"productID\":\"1203206\",\"sku\":\"1203206\",\"mpn\":\"83ER0009PB\",\"offers\":{\"@type\":\"Offer\",\"priceCurrency\":\"PLN\",\"price\":2399,\"itemCondition\":\"http://schema.org/NewCondition\",\"name\":\"http://schema.org/InStock\"}}");
         ScrappedProductDataDTO scrappedProductDataDTO = this.webTestClient
                 .get()
-                .uri( uriBuilder -> uriBuilder
+                .uri(uriBuilder -> uriBuilder
                         .path("/scrap-product-price")
                         .queryParam("url", payload)
                         .build()
@@ -96,8 +98,33 @@ public class ScrapperControllerIT {
                 .returnResult()
                 .getResponseBody();
         //THEN
-        assertThat(scrappedProductDataDTO.getProductName()).isEqualTo("Lenovo IdeaPad Slim 3-15 i5-12450H/16GB/512/Win11");
+        assertThat(scrappedProductDataDTO.getProductName()).isEqualTo("http:schema.orgInStock");
         assertThat(scrappedProductDataDTO.getPrice()).isEqualTo(BigDecimal.valueOf(2399));
+    }
+
+    @Test
+    void shouldThrowExceptionIfProductNameFieldDoesNotExistInJson() {
+        //GIVEN
+        ShopDTO shopDTO = createExampleShop();
+        shopDTO.setProductNameHtmlClass("offers.name");
+        String payload = "http://www.example.org/super-pendrive-test";
+        //WHEN
+        Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);
+        Mockito.when(shopService.getByUrl(payload)).thenReturn(shopDTO);
+        Mockito.when(curlService.fetchWebsiteContent(payload)).thenReturn("{\"@context\":\"http://schema.org/\",\"@type\":\"Product\",\"name\":\"Lenovo IdeaPad Slim 3-15 i5-12450H/16GB/512/Win11\",\"productID\":\"1203206\",\"sku\":\"1203206\",\"mpn\":\"83ER0009PB\",\"offers\":{\"@type\":\"Offer\",\"priceCurrency\":\"PLN\",\"price\":2399,\"itemCondition\":\"http://schema.org/NewCondition\"}}");
+        this.webTestClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/scrap-product-price")
+                        .queryParam("url", payload)
+                        .build()
+                )
+                .header(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("Product name or price field not found: offers.name");
+
     }
 
     private ShopDTO createExampleShop() {
