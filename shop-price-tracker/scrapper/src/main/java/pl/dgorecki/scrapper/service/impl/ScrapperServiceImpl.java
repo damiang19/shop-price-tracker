@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 
 @Service
@@ -57,7 +60,7 @@ public class ScrapperServiceImpl implements ScrapperService {
         String jsonString = findProductJson(htmlCode, shopDTO);
         JSONObject jsonObject = new JSONObject
                 (jsonString.replaceAll("\n", "").replaceAll(" ", "").replaceAll(",}", "}")
-                        .replaceAll(";","").replaceAll("[\\\\\\\\/]", ""));
+                        .replaceAll(";","").replaceAll("/", ""));
         try {
             return objectMapper.readTree(jsonObject.toString());
         } catch (JsonProcessingException jsonMappingException) {
@@ -67,14 +70,22 @@ public class ScrapperServiceImpl implements ScrapperService {
     }
 
     private String findProductJson(String htmlCode, ShopDTO shopDTO) {
-        List<String> jsonValuePath = Arrays.stream(shopDTO.getProductNameHtmlClass().split("\\.")).toList();
+//        Pattern pattern = Pattern.compile(
+//                "<script\\s+[^>]*type\\s*=\\s*['\"]application/ld\\+json['\"][^>]*>(.*?)</script>",
+//                Pattern.DOTALL | Pattern.CASE_INSENSITIVE
+//        );
+//        Matcher matcher = pattern.matcher(htmlCode);
+//        String json;
+//        while (matcher.find()) {
+//             json = matcher.group(1);
+//             System.out.println(json);
+//        }
+        List<String> jsonValuePath = Stream.concat(Arrays.stream(shopDTO.getProductNameHtmlClass().split("\\.")),Arrays.stream(shopDTO.getPriceHtmlClass().split("\\."))).toList();
         List<Predicate<String>> allPredicates = new ArrayList<>();
         for (String s : jsonValuePath) {
             allPredicates.add(pr -> pr.contains(s));
         }
-
-
-        return urlValidatorService.extractJson(htmlCode)
+        return urlValidatorService.extractJson(htmlCode, shopDTO.getJsonRegex())
                 .stream()
                 .filter(allPredicates.stream().reduce(x->true, Predicate::and))
                 .findFirst()

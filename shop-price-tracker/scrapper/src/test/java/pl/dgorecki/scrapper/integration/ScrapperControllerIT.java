@@ -2,7 +2,6 @@ package pl.dgorecki.scrapper.integration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -43,8 +42,6 @@ public class ScrapperControllerIT {
     public void init() {
     }
 
-    // findValue w jsonNode znajduje pierwsza napotkana wartosc. Czasami pasuje aby przeszukalo na podstawie wskazanej informacji wartosc zagniezdzona
-    //
     @Test
     void shouldFindProductData() {
         //GIVEN
@@ -125,6 +122,37 @@ public class ScrapperControllerIT {
                 .expectBody()
                 .jsonPath("$.message").isEqualTo("Product name or price field not found: offers.name");
 
+    }
+
+    @Test
+    void shouldFindProductDataWhenItIsNestedXkom() {
+        //GIVEN
+        ShopDTO shopDTO = createExampleShop();
+        shopDTO.setProductNameHtmlClass("name");
+        shopDTO.setPriceHtmlClass("offers.price");
+        String payload = "http://www.example.org/super-pendrive-test";
+        //WHEN
+        Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);
+        Mockito.when(shopService.getByUrl(payload)).thenReturn(shopDTO);
+        Mockito.when(curlService.fetchWebsiteContent(payload))
+                .thenReturn("{\"@context\":\"http://schema.org/\",\"@type\":\"Product\",\"name\":\"HP Omen 16 i7-13620H/16GB/512/Win11 RTX4060 144Hz\",\"productID\":\"1301209\",\"sku\":\"1301209\",\"mpn\":\"16-wd0004nw (B4MC4EA)\",\"image\":[\"https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2024/12/pr_2024_12_13_8_51_18_13_00.jpg\",\"https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2024/12/pr_2024_12_13_8_51_19_685_01.jpg\",\"https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2024/12/pr_2024_12_13_8_51_21_372_02.jpg\",\"https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2024/12/pr_2024_12_13_8_51_23_122_03.jpg\",\"https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2024/12/pr_2024_12_13_8_51_24_763_04.jpg\",\"https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2024/12/pr_2024_12_13_8_51_26_357_05.jpg\"],\"offers\":{\"@type\":\"Offer\",\"priceCurrency\":\"PLN\",\"price\":4899,\"itemCondition\":\"http://schema.org/NewCondition\",\"availability\":\"http://schema.org/InStock\"},\"brand\":{\"@type\":\"Thing\",\"name\":\"HP\"}}");
+        ScrappedProductDataDTO scrappedProductDataDTO = this.webTestClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/scrap-product-price")
+                        .queryParam("url", payload)
+                        .build()
+                )
+                .header(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ScrappedProductDataDTO.class)
+                .returnResult()
+                .getResponseBody();
+        //THEN
+        assertThat(scrappedProductDataDTO.getProductName()).isEqualTo("http:schema.orgInStock");
+        assertThat(scrappedProductDataDTO.getPrice()).isEqualTo(BigDecimal.valueOf(2399));
     }
 
     private ShopDTO createExampleShop() {

@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pl.dgorecki.scrapper.enums.JsonRegex;
 
 @Getter
 @Setter
@@ -19,5 +20,7 @@ public class ShopDTO {
     private String priceHtmlClass;
 
     private String shopUrl;
+
+    private JsonRegex jsonRegex;
 
 }

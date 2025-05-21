@@ -24,7 +24,12 @@ public class CurlServiceImpl implements CurlService {
     }
 
     private Process prepareProcess(String url) throws IOException {
-        String[] command = {"curl", "-X", "GET", url};
+        String[] command = {"curl", "-L", "--compressed",
+                "-H", "\"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\"",
+                "-H", "\"Accept-Language: en-US,en;q=0.5\"",
+                "-H", "\"Connection: keep-alive\"",
+                "-H", "\"Upgrade-Insecure-Requests: 1\"",
+                "-H", "\"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\"", url};
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         return processBuilder.start();
     }

@@ -28,8 +28,8 @@ public class ScrapperController {
         return ResponseEntity.status(HttpStatus.OK).body(scrappedProductDataDTO);
     }
 
-    @GetMapping("/scrap-product-prices")
-    public ResponseEntity<List<ScrappedProductDataDTO>> scrapListOfProducts(@RequestParam List<String> urls) {
-        return null;
-    }
+//    @GetMapping("/scrap-product-prices")
+//    public ResponseEntity<List<ScrappedProductDataDTO>> scrapListOfProducts(@RequestParam List<String> urls) {
+//        return null;
+//    }
 }
