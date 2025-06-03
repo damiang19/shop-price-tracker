@@ -26,11 +26,11 @@ public final class RegexMatcher {
                 .collect(Collectors.toList());
     }
 
-    public static List<String> findAllMedia(String url, Pattern pattern) {
+    public static List<String> findAllAndGroup(String url, Pattern pattern) {
         return pattern
                 .matcher(url)
                 .results()
-                .map(m -> m.group(1)) // <- zmiana tutaj
+                .map(m -> m.group(1))
                 .collect(Collectors.toList());
     }
 }

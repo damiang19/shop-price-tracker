@@ -10,6 +10,6 @@ public interface UrlValidatorService {
 
     String getBaseShopUrl(String url);
 
-    List<String> extractJson(String page, JsonRegex jsonRegex);
+    List<String> extractJsons(String page, JsonRegex jsonRegex);
 }
 

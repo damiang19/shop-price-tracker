@@ -11,13 +11,11 @@ import pl.dgorecki.pricetracker.entity.TrackedProduct;
 import pl.dgorecki.pricetracker.repository.TrackedProductRepository;
 import pl.dgorecki.pricetracker.service.*;
 import pl.dgorecki.pricetracker.service.dto.ScrappedProductData;
-import pl.dgorecki.pricetracker.service.dto.ShopDTO;
 import pl.dgorecki.pricetracker.service.dto.TrackedProductDTO;
 import pl.dgorecki.pricetracker.service.mapper.TrackedProductMapper;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
