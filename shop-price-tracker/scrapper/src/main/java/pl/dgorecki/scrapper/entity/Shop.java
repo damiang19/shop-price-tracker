@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.dgorecki.scrapper.enums.JsonRegex;
 
 @Entity
 @Getter
@@ -25,5 +26,8 @@ public class Shop {
     private String name;
 
     private String shopUrl;
+
+    @Enumerated(EnumType.STRING)
+    private JsonRegex jsonRegex;
 
 }

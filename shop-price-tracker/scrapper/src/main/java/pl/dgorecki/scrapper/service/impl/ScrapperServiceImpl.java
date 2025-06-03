@@ -17,6 +17,11 @@ import pl.dgorecki.scrapper.service.dto.ShopDTO;
 import pl.dgorecki.scrapper.service.errors.JsonParsingException;
 import pl.dgorecki.scrapper.service.errors.ProductJsonNotFoundException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 
 @Service
@@ -26,7 +31,6 @@ public class ScrapperServiceImpl implements ScrapperService {
     private final ShopService shopService;
     private final CurlService curlService;
     private final UrlValidatorService urlValidatorService;
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
 
@@ -35,6 +39,11 @@ public class ScrapperServiceImpl implements ScrapperService {
         String linkToProduct = urlValidatorService.validateUrlFormat(url);
         ShopDTO shopDTO = shopService.getByUrl(linkToProduct);
         return downloadInformationAboutProduct(linkToProduct, shopDTO);
+    }
+
+    @Override
+    public List<ScrappedProductDataDTO> scrapListOfProducts(List<String> urls) {
+        return null;
     }
 
     private ScrappedProductDataDTO downloadInformationAboutProduct(String linkToProduct, ShopDTO shopDTO) {
@@ -49,18 +58,24 @@ public class ScrapperServiceImpl implements ScrapperService {
         String jsonString = findProductJson(htmlCode, shopDTO);
         JSONObject jsonObject = new JSONObject
                 (jsonString.replaceAll("\n", "").replaceAll(" ", "").replaceAll(",}", "}")
-                        .replaceAll(";","").replaceAll("[\\\\\\\\/]", ""));
+                        .replaceAll(";","").replaceAll("/", ""));
         try {
             return objectMapper.readTree(jsonObject.toString());
         } catch (JsonProcessingException jsonMappingException) {
+            log.error("Error during converting jsonString : {}", jsonString);
             throw new JsonParsingException("Invalid JSON format");
         }
     }
 
     private String findProductJson(String htmlCode, ShopDTO shopDTO) {
-        return urlValidatorService.extractJson(htmlCode)
+        List<String> jsonValuePath = Stream.concat(Arrays.stream(shopDTO.getProductNameHtmlClass().split("\\.")),Arrays.stream(shopDTO.getPriceHtmlClass().split("\\."))).toList();
+        List<Predicate<String>> allPredicates = new ArrayList<>();
+        for (String s : jsonValuePath) {
+            allPredicates.add(pr -> pr.contains(s));
+        }
+        return urlValidatorService.extractJsons(htmlCode, shopDTO.getJsonRegex())
                 .stream()
-                .filter(json -> json.contains(shopDTO.getPriceHtmlClass()) && json.contains(shopDTO.getProductNameHtmlClass()))
+                .filter(allPredicates.stream().reduce(x->true, Predicate::and))
                 .findFirst()
                 .orElseThrow(() -> new ProductJsonNotFoundException("JSON with the given product name and price was not found"));
     }

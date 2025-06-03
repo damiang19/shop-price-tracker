@@ -29,7 +29,7 @@ public class ShopController {
     }
 
     @GetMapping("/shops")
-    public ResponseEntity<List<ShopDTO>> getShopsByNames(@RequestParam List<String> names) {
+    public ResponseEntity<List<ShopDTO>> getShopsByNames(@RequestParam("names") List<String> names) {
         log.debug("REST request to get all shops with names : {}", names);
         List<ShopDTO> shops = shopService.getAllByNames(names);
         return ResponseEntity.status(HttpStatus.CREATED).body(shops);

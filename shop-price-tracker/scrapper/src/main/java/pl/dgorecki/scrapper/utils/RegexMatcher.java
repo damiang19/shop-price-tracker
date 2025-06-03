@@ -25,4 +25,12 @@ public final class RegexMatcher {
                 .map(MatchResult::group)
                 .collect(Collectors.toList());
     }
+
+    public static List<String> findAllAndGroup(String url, Pattern pattern) {
+        return pattern
+                .matcher(url)
+                .results()
+                .map(m -> m.group(1))
+                .collect(Collectors.toList());
+    }
 }

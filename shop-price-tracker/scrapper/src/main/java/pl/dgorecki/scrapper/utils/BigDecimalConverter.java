@@ -1,6 +1,6 @@
 package pl.dgorecki.scrapper.utils;
 
-import pl.dgorecki.scrapper.enums.UrlRegexp;
+import pl.dgorecki.scrapper.enums.UrlRegex;
 import pl.dgorecki.scrapper.service.errors.PatternNotFoundException;
 
 import java.math.BigDecimal;
@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public final class BigDecimalConverter {
 
-    private final static Pattern pricePattern = Pattern.compile(UrlRegexp.PRICE.getValue());
+    private final static Pattern pricePattern = Pattern.compile(UrlRegex.PRICE.getValue());
 
     private BigDecimalConverter() {}
 
