@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import pl.dgorecki.scrapper.ScrapperApplication;
+import pl.dgorecki.scrapper.enums.JsonRegex;
 import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 import pl.dgorecki.scrapper.service.dto.ShopDTO;
 import pl.dgorecki.scrapper.service.impl.CurlServiceImpl;
@@ -46,6 +47,7 @@ public class ScrapperControllerIT {
     void shouldFindProductData() {
         //GIVEN
         ShopDTO shopDTO = createExampleShop();
+        shopDTO.setJsonRegex(JsonRegex.MEDIA_JSON);
         String payload = "http://www.example.org/super-pendrive-test";
         //WHEN
         Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);
@@ -75,6 +77,7 @@ public class ScrapperControllerIT {
         //GIVEN
         ShopDTO shopDTO = createExampleShop();
         shopDTO.setProductNameHtmlClass("offers.name");
+        shopDTO.setJsonRegex(JsonRegex.INNER_JSON);
         String payload = "http://www.example.org/super-pendrive-test";
         //WHEN
         Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);
@@ -104,6 +107,7 @@ public class ScrapperControllerIT {
         //GIVEN
         ShopDTO shopDTO = createExampleShop();
         shopDTO.setProductNameHtmlClass("offers.name");
+        shopDTO.setJsonRegex(JsonRegex.INNER_JSON);
         String payload = "http://www.example.org/super-pendrive-test";
         //WHEN
         Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);
@@ -130,6 +134,7 @@ public class ScrapperControllerIT {
         ShopDTO shopDTO = createExampleShop();
         shopDTO.setProductNameHtmlClass("name");
         shopDTO.setPriceHtmlClass("offers.price");
+        shopDTO.setJsonRegex(JsonRegex.INNER_JSON);
         String payload = "http://www.example.org/super-pendrive-test";
         //WHEN
         Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);

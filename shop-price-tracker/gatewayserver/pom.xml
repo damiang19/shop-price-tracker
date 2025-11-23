@@ -113,7 +113,7 @@
 						<image>eclipse-temurin:21-jre</image> <!-- Użyj obrazu JRE dla Java 21 -->
 					</from>
 					<to>
-						<image>damiang19/${project.artifactId}:s1</image>
+						<image>damiang19/${project.artifactId}:s2</image>
 					</to>
 				</configuration>
 			</plugin>

@@ -22,7 +22,7 @@ public class ScrapperController {
 
 
     @GetMapping("/scrap-product-price")
-    public ResponseEntity<ScrappedProductDataDTO> scrapProductData(@RequestParam String url) {
+    public ResponseEntity<ScrappedProductDataDTO> scrapProductData(@RequestParam("url") String url) {
         log.info("REST request to scrap product with url {}", url);
         ScrappedProductDataDTO scrappedProductDataDTO = scrapperService.scrapActualProductPrice(url);
         return ResponseEntity.status(HttpStatus.OK).body(scrappedProductDataDTO);

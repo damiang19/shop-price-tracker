@@ -251,7 +251,7 @@ services :
     networks:
       - shop-price-tracker
   configserver:
-    image: damiang19/configserver:s1
+    image: damiang19/configserver:s2
     container_name: config-server-ms
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
@@ -268,7 +268,7 @@ services :
     networks:
       - shop-price-tracker
   eurekaserver:
-    image: damiang19/eurekaserver:s1
+    image: damiang19/eurekaserver:s2
     container_name: eurekaserver-ms
     healthcheck:
       test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
@@ -293,7 +293,7 @@ services :
       SPRING_APPLICATION_NAME: "eurekaserver"
 
   price-tracker:
-    image: damiang19/price_tracker:s1
+    image: damiang19/price_tracker:s2
     container_name: price-tracker-ms
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
@@ -322,7 +322,7 @@ services :
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
 
   scrapper:
-    image: damiang19/scrapper:s1
+    image: damiang19/scrapper:s2
     container_name: scrapper-ms
     healthcheck:
       test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
@@ -350,7 +350,7 @@ services :
       SPRING_DATASOURCE_URL: "jdbc:postgresql://scrapperdb:5432/scrapper"
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
   gatewayserver:
-    image: damiang19/gatewayserver:s1
+    image: damiang19/gatewayserver:s2
     container_name: gateway-server-ms
     depends_on:
       scrapper:
@@ -370,9 +370,6 @@ services :
       SPRING_APPLICATION_NAME: "gatewayserver"
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eurekaserver:8070/eureka
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
-      SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379
-      SPRING_DATA_REDIS_TIMEOUT: 1s
 networks:
   shop-price-tracker:
     driver: "bridge"
