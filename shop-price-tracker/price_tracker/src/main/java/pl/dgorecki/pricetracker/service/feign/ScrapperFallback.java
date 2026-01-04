@@ -14,8 +14,4 @@ public class ScrapperFallback implements ScrapperIntegrationService{
         return null;
     }
 
-    @Override
-    public ResponseEntity<List<ShopDTO>> getShopsByNames(List<String> names) {
-        return null;
-    }
 }

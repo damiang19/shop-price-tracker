@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.dgorecki.scrapper.service.ScrapperService;
 import pl.dgorecki.scrapper.service.dto.ScrappedProductDataDTO;
 
@@ -28,8 +26,9 @@ public class ScrapperController {
         return ResponseEntity.status(HttpStatus.OK).body(scrappedProductDataDTO);
     }
 
-//    @GetMapping("/scrap-product-prices")
-//    public ResponseEntity<List<ScrappedProductDataDTO>> scrapListOfProducts(@RequestParam List<String> urls) {
-//        return null;
-//    }
+    @PutMapping("/scrap-product-prices")
+    public ResponseEntity<List<ScrappedProductDataDTO>> scrapListOfProducts(@RequestBody List<String> urls) {
+        List<ScrappedProductDataDTO> productDataDTOList = scrapperService.scrapListOfProducts(urls);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDataDTOList);
+    }
 }

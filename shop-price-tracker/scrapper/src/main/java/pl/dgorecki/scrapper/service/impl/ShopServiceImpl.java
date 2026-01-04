@@ -45,7 +45,7 @@ public class ShopServiceImpl implements ShopService {
     }
     @Override
     @Transactional
-    public List<ShopDTO> getAllByNames(List<String> names) {
-        return shopMapper.toDto(shopRepository.findAllByNameIn(names));
+    public List<ShopDTO> getAll() {
+        return shopMapper.toDto(shopRepository.findAll());
     }
 }

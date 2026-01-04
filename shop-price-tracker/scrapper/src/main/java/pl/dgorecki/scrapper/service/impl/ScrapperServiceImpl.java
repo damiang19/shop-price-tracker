@@ -43,7 +43,11 @@ public class ScrapperServiceImpl implements ScrapperService {
 
     @Override
     public List<ScrappedProductDataDTO> scrapListOfProducts(List<String> urls) {
-        return null;
+        List<ScrappedProductDataDTO> listOfProducts = new ArrayList<>();
+        for (String url : urls) {
+            listOfProducts.add(scrapActualProductPrice(url));
+        }
+        return listOfProducts;
     }
 
     private ScrappedProductDataDTO downloadInformationAboutProduct(String linkToProduct, ShopDTO shopDTO) {

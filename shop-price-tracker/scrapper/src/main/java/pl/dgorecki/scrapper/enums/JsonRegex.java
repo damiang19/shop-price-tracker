@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum JsonRegex {
 
     INNER_JSON("\\{[^{}]*+(?:\\{[^{}]*+\\}[^{}]*+).*\\}"),
-    MEDIA_JSON("<script\\s+[^>]*type\\s*=\\s*['\"]application/ld\\+json['\"][^>]*>(.*?)</script>");
+    MEDIA_JSON("<script\\s+[^>]*type\\s*=\\s*['\"]application/ld\\+json['\"][^>]*>(.*?)</script>"),
+    BASIC_JSON("\\{[^{}]*+(?:\\{[^{}]*+\\}[^{}]*+)*\\}");
 
     private final String value;
 

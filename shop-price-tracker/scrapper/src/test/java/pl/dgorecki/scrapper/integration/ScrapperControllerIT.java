@@ -47,7 +47,7 @@ public class ScrapperControllerIT {
     void shouldFindProductData() {
         //GIVEN
         ShopDTO shopDTO = createExampleShop();
-        shopDTO.setJsonRegex(JsonRegex.MEDIA_JSON);
+        shopDTO.setJsonRegex(JsonRegex.BASIC_JSON);
         String payload = "http://www.example.org/super-pendrive-test";
         //WHEN
         Mockito.when(urlValidatorService.validateUrlFormat(payload)).thenReturn(payload);
