@@ -61,7 +61,7 @@ public class ScrapperServiceImpl implements ScrapperService {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = findProductJson(htmlCode, shopDTO);
         JSONObject jsonObject = new JSONObject
-                (jsonString.replaceAll("\n", "").replaceAll(" ", "").replaceAll(",}", "}")
+                (jsonString.replaceAll("\n", "").replaceAll(",}", "}")
                         .replaceAll(";","").replaceAll("/", ""));
         try {
             return objectMapper.readTree(jsonObject.toString());

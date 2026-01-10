@@ -23,8 +23,10 @@ public class Shop {
 
     private String priceHtmlClass;
 
+    @Column(unique = true)
     private String name;
 
+    @Column(unique = true)
     private String shopUrl;
 
     @Enumerated(EnumType.STRING)
